@@ -1,9 +1,8 @@
-package com.udacity.jdnd.course3.critter.schedule;
+package com.udacity.jdnd.course3.critter.dto;
 
-import com.udacity.jdnd.course3.critter.user.EmployeeSkill;
+import com.udacity.jdnd.course3.critter.common.enums.EmployeeSkill;
 import lombok.*;
 
-import javax.persistence.ElementCollection;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;

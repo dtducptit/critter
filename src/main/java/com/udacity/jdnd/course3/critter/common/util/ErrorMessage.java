@@ -1,4 +1,4 @@
-package com.udacity.jdnd.course3.critter.util;
+package com.udacity.jdnd.course3.critter.common.util;
 
 import lombok.Getter;
 
