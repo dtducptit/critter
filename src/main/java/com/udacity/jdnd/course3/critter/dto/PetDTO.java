@@ -21,10 +21,4 @@ public class PetDTO {
     private long ownerId;
     private LocalDate birthDate;
     private String notes;
-
-    public PetDTO(Long id) {
-        this.id = id;
-    }
-
-
 }

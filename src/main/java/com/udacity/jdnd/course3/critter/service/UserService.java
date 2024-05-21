@@ -32,7 +32,6 @@ public class UserService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         Customer customer = new Customer(customerDTO.getName(), customerDTO.getPhoneNumber(), customerDTO.getNotes());
         Customer result = this.customerRepository.save(customer);
@@ -77,8 +76,7 @@ public class UserService {
 
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
-        List<Employee> result = this.employeeRepository
-                .findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
+        List<Employee> result = this.employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
 
         List<Employee> employeeList = new ArrayList<>();
         result.forEach(e -> {

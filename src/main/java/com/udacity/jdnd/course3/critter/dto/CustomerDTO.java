@@ -15,11 +15,4 @@ public class CustomerDTO {
     private String name;
     private String phoneNumber;
     private String notes;
-    public CustomerDTO(String name, String phoneNumber, String notes) {
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.notes = notes;
-    }
-
-
 }

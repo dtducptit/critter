@@ -8,6 +8,7 @@ import com.udacity.jdnd.course3.critter.repository.PetRepository;
 import com.udacity.jdnd.course3.critter.repository.ScheduleRepository;
 import com.udacity.jdnd.course3.critter.repository.CustomerRepository;
 import com.udacity.jdnd.course3.critter.repository.EmployeeRepository;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +39,14 @@ public class ScheduleService {
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
         List<Employee> employees = this.employeeRepository.findAllById(scheduleDTO.getEmployeeIds());
         List<Pet> pets = this.petRepository.findAllById(scheduleDTO.getPetIds());
-
-        if (employees.size() == 0 || pets.size() == 0) return null;
         Schedule schedule = new Schedule();
         schedule.setDate(scheduleDTO.getDate());
         schedule.setActivities(scheduleDTO.getActivities());
-
         schedule.setEmployees(employees);
         schedule.setPets(pets);
         Schedule result = this.scheduleRepository.save(schedule);
-        List<Long> petIds = result.getPets().stream().map(pet -> pet.getId()).collect(Collectors.toList());
-        List<Long> employeeIds = result.getEmployees().stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> petIds = result.getPets().stream().map(Pet::getId).collect(Collectors.toList());
+        final List<Long> employeeIds = result.getEmployees().stream().map(e -> e.getId()).collect(Collectors.toList());
         return new ScheduleDTO(result.getId(), employeeIds, petIds, result.getDate(), result.getActivities());
     }
 
