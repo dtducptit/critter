@@ -1,6 +1,6 @@
 package com.udacity.jdnd.course3.critter.service;
 
-import com.udacity.jdnd.course3.critter.dto.CustomerDTO;
+import  com.udacity.jdnd.course3.critter.dto.CustomerDTO;
 import com.udacity.jdnd.course3.critter.dto.EmployeeDTO;
 import com.udacity.jdnd.course3.critter.dto.EmployeeRequestDTO;
 import com.udacity.jdnd.course3.critter.entity.Customer;
@@ -34,11 +34,11 @@ public class UserService {
 
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         Customer customer = new Customer(customerDTO.getName(), customerDTO.getPhoneNumber(), customerDTO.getNotes());
-        Customer customer1 = this.customerRepository.save(customer);
-        return new CustomerDTO(customer1.getId(), customer1.getName(), customer1.getPhoneNumber(), customer1.getNotes());
+        Customer saveCustomer = customerRepository.save(customer);
+        return new CustomerDTO(saveCustomer.getId(), saveCustomer.getName(), saveCustomer.getPhoneNumber(), saveCustomer.getNotes());
     }
     public List<CustomerDTO> getAllCustomers(){
-        List<Customer> customers = this.customerRepository.findAll();
+        List<Customer> customers = customerRepository.findAll();
         return customers.stream().map(customer -> new CustomerDTO(
                 customer.getId(),
                 customer.getName(),
@@ -47,35 +47,35 @@ public class UserService {
         )).collect(Collectors.toList());
     }
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        Optional<Pet> pet = this.petRepository.findById(petId);
-        Customer customer = this.customerRepository.findById(pet.get().getCustomer().getId()).orElse(null);
-        return new CustomerDTO(customer.getId(), customer.getName(), customer.getPhoneNumber(), customer.getNotes());
+        Optional<Pet> pet = petRepository.findById(petId);
+        if (pet.isPresent()) {
+            Customer customer = pet.get().getCustomer();
+            return new CustomerDTO(customer.getId(), customer.getName(), customer.getPhoneNumber(), customer.getNotes());
+        } else {
+            throw new NoSuchElementException("Pet not found");
+        }
     }
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
         Employee employee = new Employee(employeeDTO.getName(), employeeDTO.getSkills(), employeeDTO.getDaysAvailable());
-        Employee save = this.employeeRepository.save(employee);
-        return new EmployeeDTO(save.getId(), save.getName(), save.getSkills(), save.getDayAvailables());
+        Employee saveEmployee = employeeRepository.save(employee);
+        return new EmployeeDTO(saveEmployee.getId(), saveEmployee.getName(), saveEmployee.getSkills(), saveEmployee.getDayAvailables());
     }
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        Employee employee = this.employeeRepository.findById(employeeId).orElse(null);
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new NoSuchElementException("Employee not found"));
         return new EmployeeDTO(employee.getId(), employee.getName(), employee.getSkills(), employee.getDayAvailables());
     }
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId){
-        Optional<Employee> employeeOptional = this.employeeRepository.findById(employeeId);
-        Employee employee = employeeOptional.get();
+        Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new NoSuchElementException("Employee not found"));
         employee.setDayAvailables(daysAvailable);
-        this.employeeRepository.save(employee);
+        employeeRepository.save(employee);
     }
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
-        List<Employee> employees = this.employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
-        List<Employee> employeeList = new ArrayList<>();
-        employees.forEach(e -> {
-            if (e.getSkills().containsAll(employeeDTO.getSkills())) {
-                employeeList.add(e);
-            }
-        });
-        return employeeList.stream().map(employee -> new EmployeeDTO(
+        List<Employee> employees = employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
+        List<Employee> filteredEmployees = employees.stream()
+                .filter(employee -> employee.getSkills().containsAll(employeeDTO.getSkills()))
+                .collect(Collectors.toList());
+        return filteredEmployees.stream().map(employee -> new EmployeeDTO(
                 employee.getId(), employee.getName(), employee.getSkills(), employee.getDayAvailables())
         ).collect(Collectors.toList());
     }
