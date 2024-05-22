@@ -37,44 +37,44 @@ public class ScheduleService {
     private CustomerRepository customerRepository;
 
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
-        List<Employee> employees = this.employeeRepository.findAllById(scheduleDTO.getEmployeeIds());
-        List<Pet> pets = this.petRepository.findAllById(scheduleDTO.getPetIds());
+        List<Employee> employees = employeeRepository.findAllById(scheduleDTO.getEmployeeIds());
+        List<Pet> pets = petRepository.findAllById(scheduleDTO.getPetIds());
         Schedule schedule = new Schedule();
         schedule.setDate(scheduleDTO.getDate());
         schedule.setActivities(scheduleDTO.getActivities());
         schedule.setPets(pets);
         schedule.setEmployees(employees);
-        Schedule result = this.scheduleRepository.save(schedule);
+        Schedule result = scheduleRepository.save(schedule);
         List<Long> petIds = result.getPets().stream().map(Pet::getId).collect(Collectors.toList());
-        final List<Long> employeeIds = result.getEmployees().stream().map(e -> e.getId()).collect(Collectors.toList());
+        List<Long> employeeIds = result.getEmployees().stream().map(Employee::getId).collect(Collectors.toList());
         return new ScheduleDTO(result.getId(), employeeIds, petIds, result.getDate(), result.getActivities());
     }
     public List<ScheduleDTO> getAllSchedules() {
-        List<Schedule> list = this.scheduleRepository.findAll();
-        return getScheduleDTOS(list);
+        List<Schedule> schedules = scheduleRepository.findAll();
+        return getScheduleDTOS(schedules);
     }
     public List<ScheduleDTO> getScheduleForPet(@PathVariable long petId) {
-        Pet pet = this.petRepository.getOne(petId);
-        List<Schedule> list = this.scheduleRepository.findAllByPetsContaining(pet);
-        return getScheduleDTOS(list);
+        Pet pet = petRepository.getOne(petId);
+        List<Schedule> schedules = scheduleRepository.findAllByPetsContaining(pet);
+        return getScheduleDTOS(schedules);
     }
     private List<ScheduleDTO> getScheduleDTOS(List<Schedule> list) {
         return list.stream().map(s -> new ScheduleDTO(
                 s.getId(),
-                s.getEmployees().stream().map(e -> e.getId()).collect(Collectors.toList()),
-                s.getPets().stream().map(pet -> pet.getId()).collect(Collectors.toList()),
+                s.getEmployees().stream().map(Employee::getId).collect(Collectors.toList()),
+                s.getPets().stream().map(Pet::getId).collect(Collectors.toList()),
                 s.getDate(),
                 s.getActivities()
         )).collect(Collectors.toList());
     }
     public List<ScheduleDTO> getScheduleForEmployee(@PathVariable long employeeId) {
-        Employee employee = this.employeeRepository.getOne(employeeId);
-        List<Schedule> list = this.scheduleRepository.findAllByEmployeesContaining(employee);
+        Employee employee = employeeRepository.getOne(employeeId);
+        List<Schedule> list = scheduleRepository.findAllByEmployeesContaining(employee);
         return getScheduleDTOS(list);
     }
     public List<ScheduleDTO> getScheduleForCustomer(@PathVariable long customerId) {
-        List<Pet> pets = this.petRepository.findByOwerId(customerId);
-        List<Schedule> list = this.scheduleRepository.findAllByPetsIn(pets);
+        List<Pet> pets = petRepository.findByOwerId(customerId);
+        List<Schedule> list = scheduleRepository.findAllByPetsIn(pets);
         return getScheduleDTOS(list);
     }
 }
