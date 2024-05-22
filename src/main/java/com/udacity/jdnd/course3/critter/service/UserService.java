@@ -50,7 +50,6 @@ public class UserService {
 
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
         Optional<Pet> pet = this.petRepository.findById(petId);
-        if (!pet.isPresent()) return null;
         Customer customer = this.customerRepository.findById(pet.get().getCustomer().getId()).orElse(null);
         return new CustomerDTO(customer.getId(), customer.getName(), customer.getPhoneNumber(), customer.getNotes());
     }
@@ -67,27 +66,23 @@ public class UserService {
     }
 
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId){
-        Optional<Employee> e = this.employeeRepository.findById(employeeId);
-        if (!e.isPresent()) return;
-        Employee employee = e.get();
+        Optional<Employee> employeeOptional = this.employeeRepository.findById(employeeId);
+        Employee employee = employeeOptional.get();
         employee.setDayAvailables(daysAvailable);
         this.employeeRepository.save(employee);
     }
 
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
-        List<Employee> result = this.employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
-
+        List<Employee> employees = this.employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
         List<Employee> employeeList = new ArrayList<>();
-        result.forEach(e -> {
+        employees.forEach(e -> {
             if (e.getSkills().containsAll(employeeDTO.getSkills())) {
                 employeeList.add(e);
             }
         });
-
         return employeeList.stream().map(employee -> new EmployeeDTO(
                 employee.getId(), employee.getName(), employee.getSkills(), employee.getDayAvailables())
         ).collect(Collectors.toList());
     }
-
 }
