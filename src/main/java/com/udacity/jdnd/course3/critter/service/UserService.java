@@ -34,10 +34,9 @@ public class UserService {
 
     public CustomerDTO saveCustomer(@RequestBody CustomerDTO customerDTO){
         Customer customer = new Customer(customerDTO.getName(), customerDTO.getPhoneNumber(), customerDTO.getNotes());
-        Customer result = this.customerRepository.save(customer);
-        return new CustomerDTO(result.getId(), result.getName(), result.getPhoneNumber(), result.getNotes());
+        Customer customer1 = this.customerRepository.save(customer);
+        return new CustomerDTO(customer1.getId(), customer1.getName(), customer1.getPhoneNumber(), customer1.getNotes());
     }
-
     public List<CustomerDTO> getAllCustomers(){
         List<Customer> customers = this.customerRepository.findAll();
         return customers.stream().map(customer -> new CustomerDTO(
@@ -47,31 +46,26 @@ public class UserService {
                 customer.getPhoneNumber()
         )).collect(Collectors.toList());
     }
-
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
         Optional<Pet> pet = this.petRepository.findById(petId);
         Customer customer = this.customerRepository.findById(pet.get().getCustomer().getId()).orElse(null);
         return new CustomerDTO(customer.getId(), customer.getName(), customer.getPhoneNumber(), customer.getNotes());
     }
-
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
         Employee employee = new Employee(employeeDTO.getName(), employeeDTO.getSkills(), employeeDTO.getDaysAvailable());
-        Employee result = this.employeeRepository.save(employee);
-        return new EmployeeDTO(result.getId(), result.getName(), result.getSkills(), result.getDayAvailables());
+        Employee save = this.employeeRepository.save(employee);
+        return new EmployeeDTO(save.getId(), save.getName(), save.getSkills(), save.getDayAvailables());
     }
-
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
         Employee employee = this.employeeRepository.findById(employeeId).orElse(null);
         return new EmployeeDTO(employee.getId(), employee.getName(), employee.getSkills(), employee.getDayAvailables());
     }
-
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId){
         Optional<Employee> employeeOptional = this.employeeRepository.findById(employeeId);
         Employee employee = employeeOptional.get();
         employee.setDayAvailables(daysAvailable);
         this.employeeRepository.save(employee);
     }
-
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
         DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
         List<Employee> employees = this.employeeRepository.findByDayAvailablesContainingAndSkillsIn(dayOfWeek, employeeDTO.getSkills());
